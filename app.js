@@ -4,12 +4,12 @@ A simple echo bot for the Microsoft Bot Framework.
 
 var restify = require('restify');
 var builder = require('botbuilder');
-var SearchLibrary = require('./SearchDialogLibrary');
-var AzureSearch = require('./SearchProviders/azure-search');
+//var SearchLibrary = require('./SearchDialogLibrary');
+//var AzureSearch = require('./SearchProviders/azure-search');
 
 // Azure Search
-var azureSearchClient = AzureSearch.create('shushu-recipes','Id','dishrecipes');
-var ResultsMapper = SearchLibrary.defaultResultsMapper(ToSearchHint)
+//var azureSearchClient = AzureSearch.create('shushu-recipes','Id','dishrecipes');
+//var ResultsMapper = SearchLibrary.defaultResultsMapper(ToSearchHint)
 
 
 // Setup Restify Server
@@ -49,7 +49,7 @@ var bot = new builder.UniversalBot(connector, [
     }
 ]);
 
-bot.library(SearchLibrary.create({
+/*bot.library(SearchLibrary.create({
     multipleSelectiion: true,
     search: function (query) { return azureSearchClient.search(query).then(ResultsMapper);},
     refiners: [],
@@ -96,6 +96,6 @@ function searchHitAsCard(showSave, searchHit) {
     }
 
     return card;
-}
+}*/
 
 
