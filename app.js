@@ -54,7 +54,7 @@ var bot = new builder.UniversalBot(connector, [
     }
 ]);
 
-/*bot.library(SearchLibrary.create({
+bot.library(SearchLibrary.create({
     multipleSelectiion: true,
     search: function (query) { return azureSearchClient.search(query).then(ResultsMapper);},
     refiners: [],
@@ -74,7 +74,7 @@ bot.dialog('dishSearch', [
         // Process selected search results
         session.send('Search Completed!',args.selection.map()); //format your response
     }
-]); */
+]);
 
 function ToSearchHit(azureResponse) {
     return {
@@ -87,7 +87,7 @@ function ToSearchHit(azureResponse) {
     };
 }
 
-/*function searchHitAsCard(showSave, searchHit) {
+function searchHitAsCard(showSave, searchHit) {
     var buttons = showSave ? [new builder.CardAction().type('imBack').title('Save').value(searchHit.key)] : [];
 
     var card = new builder.HeroCard().title(searchHit.dish).buttons(buttons);
@@ -101,6 +101,6 @@ function ToSearchHit(azureResponse) {
     }
 
     return card;
-}*/
+}
 
 
