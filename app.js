@@ -4,8 +4,8 @@ A simple echo bot for the Microsoft Bot Framework.
 
 var restify = require('restify');
 var builder = require('botbuilder');
-//var SearchLibrary = require('./SearchDialogLibrary');
-//var AzureSearch = require('./SearchProviders/azure-search');
+var SearchLibrary = require('./SearchDialogLibrary');
+var AzureSearch = require('./SearchProviders/azure-search');
 
 // Azure Search
 //var azureSearchClient = AzureSearch.create('shushu-recipes','Id','dishrecipes');
