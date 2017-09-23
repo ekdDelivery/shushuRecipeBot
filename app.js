@@ -9,7 +9,7 @@ var AzureSearch = require('./SearchProviders/azure-search');
 
 // Azure Search
 try {
-    var azureSearchClient = AzureSearch.create('shushu-recipes','Id','dishrecipes');
+    var azureSearchClient = AzureSearch.create('shushu-recipes','EB01DC42455D1FA8FE0414741526E05B','dishrecipes');
     var ResultsMapper = SearchLibrary.defaultResultsMapper(ToSearchHint);
  }
  catch (e) {
@@ -74,7 +74,7 @@ bot.dialog('dishSearch', [
         // Process selected search results
         session.send('Search Completed!',args.selection.map()); //format your response
     }
-]);
+]); */
 
 function ToSearchHit(azureResponse) {
     return {
@@ -87,7 +87,7 @@ function ToSearchHit(azureResponse) {
     };
 }
 
-function searchHitAsCard(showSave, searchHit) {
+/*function searchHitAsCard(showSave, searchHit) {
     var buttons = showSave ? [new builder.CardAction().type('imBack').title('Save').value(searchHit.key)] : [];
 
     var card = new builder.HeroCard().title(searchHit.dish).buttons(buttons);
