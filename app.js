@@ -8,8 +8,13 @@ var SearchLibrary = require('./SearchDialogLibrary');
 var AzureSearch = require('./SearchProviders/azure-search');
 
 // Azure Search
-var azureSearchClient = AzureSearch.create('shushu-recipes','Id','dishrecipes');
-var ResultsMapper = SearchLibrary.defaultResultsMapper(ToSearchHint);
+try {
+    var azureSearchClient = AzureSearch.create('shushu-recipes','Id','dishrecipes');
+    var ResultsMapper = SearchLibrary.defaultResultsMapper(ToSearchHint);
+ }
+ catch (e) {
+    console.error('error', e.message);
+ }
 
 
 // Setup Restify Server
