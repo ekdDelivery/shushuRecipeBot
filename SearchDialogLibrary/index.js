@@ -298,9 +298,9 @@ function create(settings) {
     }
 
     function searchPrompt(session) {
-        var prompt = 'What would you like to search for?';
+        var prompt = 'What dish do you want the recipe for?';
         if (session.dialogData.firstTimeDone) {
-            prompt = 'What else would you like to search for?';
+            prompt = 'Any other recipe you would like to search for?';
             if (settings.multipleSelection) {
                 prompt += ' You can also *list* all items you\'ve added so far.';
             }

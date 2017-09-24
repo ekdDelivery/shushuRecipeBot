@@ -8,13 +8,8 @@ var SearchLibrary = require('./SearchDialogLibrary');
 var AzureSearch = require('./SearchProviders/azure-search');
 
 // Azure Search
-try {
-    var azureSearchClient = AzureSearch.create('shushu-recipes','EB01DC42455D1FA8FE0414741526E05B','dishrecipes');
-    var ResultsMapper = SearchLibrary.defaultResultsMapper(ToSearchHit);
- }
- catch (e) {
-    console.error('error', e.message);
- }
+var azureSearchClient = AzureSearch.create('shushu-recipes','EB01DC42455D1FA8FE0414741526E05B','dishrecipes');
+var ResultsMapper = SearchLibrary.defaultResultsMapper(ToSearchHit);
 
 
 // Setup Restify Server
@@ -43,13 +38,10 @@ server.post('/api/messages', connector.listen());
 // Create your bot with a function to receive messages from the user
 var bot = new builder.UniversalBot(connector, [
     function(session) {
-        session.send("Hi!");
-        session.send("I am the Shushu Recipe Bot :)");
-        session.send("I can help you find Ghanaian recipes");
-        builder.Prompts.text(session, "What dish do you want the recipe for?");
+        session.send("Hi, I am the Shushu Recipe Bot :), \nI can help you find Ghanaian recipes");
+        next();
     },
     function(session,results) {
-        session.send(`You said ${results.response}!`);
         session.beginDialog('dishSearch');
     }
 ]);
