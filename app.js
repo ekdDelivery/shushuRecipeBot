@@ -79,7 +79,7 @@ bot.dialog('dishSearch', [
 function ToSearchHit(azureResponse) {
     return {
         // define your own parameters
-        key: azureResponse.id,
+        key: azureResponse.Id,
         title: azureResponse.Dish,
         ingredients: azureResponse.Ingredients,
         preparation: azureResponse.Preparation,
