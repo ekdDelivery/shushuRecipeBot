@@ -72,7 +72,7 @@ bot.dialog('dishSearch', [
     },
     function (session, args) {
         // Process selected search results
-        session.send('Search Completed!',args.selection.map()); //format your response
+        session.send('Search Completed!',args.selection.map(function (i) { return i.key; }).join(', ')); //format your response
     }
 ]);
 
