@@ -77,6 +77,7 @@ bot.dialog('dishSearch', [
 ]);
 
 function ToSearchHit(azureResponse) {
+    console.log(azureResponse.toString());
     return {
         // define your own parameters
         key: azureResponse.id,
