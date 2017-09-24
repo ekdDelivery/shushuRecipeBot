@@ -282,7 +282,7 @@ function create(settings) {
         var card = new builder.HeroCard().title(searchHit.title).buttons(buttons);
         
         if(searchHit.ingredients){
-            card.subtitle(searchHit.description);
+            card.subtitle(searchHit.ingredients);
         }
         
         if(searchHit.preparation){
