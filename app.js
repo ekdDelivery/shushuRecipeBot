@@ -77,7 +77,6 @@ bot.dialog('dishSearch', [
 ]);
 
 function ToSearchHit(azureResponse) {
-    console.log(azureResponse.toString());
     return {
         // define your own parameters
         key: azureResponse.id,
@@ -86,22 +85,6 @@ function ToSearchHit(azureResponse) {
         preparation: azureResponse.Preparation,
         source: azureResponse.Source
     };
-}
-
-function searchHitAsCard(showSave, searchHit) {
-    var buttons = showSave ? [new builder.CardAction().type('imBack').title('Save').value(searchHit.key)] : [];
-
-    var card = new builder.HeroCard().title(searchHit.dish).buttons(buttons);
-
-    if(searchHit.ingredients){
-        card.subtitle(searchHit.description);
-    }
-
-    if(searchHit.preparation){
-        card.text(searchHit.preparation);
-    }
-
-    return card;
 }
 
 

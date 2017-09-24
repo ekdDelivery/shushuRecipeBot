@@ -278,17 +278,17 @@ function create(settings) {
     function searchHitAsCard(showSave, searchHit) {
         var buttons = showSave ? [new builder.CardAction().type('imBack').title('Save').value(searchHit.key)] : [];
         
-            var card = new builder.HeroCard().title(searchHit.dish).buttons(buttons);
+        var card = new builder.HeroCard().title(searchHit.title).buttons(buttons);
         
-            if(searchHit.ingredients){
-                card.subtitle(searchHit.description);
-            }
+        if(searchHit.ingredients){
+            card.subtitle(searchHit.description);
+        }
         
-            if(searchHit.preparation){
-                card.text(searchHit.preparation);
-            }
+        if(searchHit.preparation){
+            card.text(searchHit.preparation);
+        }
         
-            return card;
+        return card;
     }
 
     function applyRefiner(query, refiner, refinerValue) {
