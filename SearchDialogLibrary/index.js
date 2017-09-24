@@ -93,7 +93,7 @@ function create(settings) {
                 var reply = new builder.Message(session)
                     .text('Here are a few good options I found:')
                     .attachmentLayout(builder.AttachmentLayout.carousel)
-                    .attachments(results.map(searchHitAsCard.bind(null, true)));
+                    .attachments(results.map(searchHitAsCard.bind(null, results)));
 
                 session.send(reply);
 
