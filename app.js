@@ -10,7 +10,7 @@ var AzureSearch = require('./SearchProviders/azure-search');
 // Azure Search
 try {
     var azureSearchClient = AzureSearch.create('shushu-recipes','EB01DC42455D1FA8FE0414741526E05B','dishrecipes');
-    var ResultsMapper = SearchLibrary.defaultResultsMapper(ToSearchHint);
+    var ResultsMapper = SearchLibrary.defaultResultsMapper(ToSearchHit);
  }
  catch (e) {
     console.error('error', e.message);
