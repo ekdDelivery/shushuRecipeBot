@@ -90,11 +90,10 @@ function create(settings) {
 
                 // Display results
                 var results = args.searchResponse.results;
-                console.log("Search Results: " + results);
                 var reply = new builder.Message(session)
                     .text('Here are a few good options I found:')
                     .attachmentLayout(builder.AttachmentLayout.carousel)
-                    .attachments(results.map(searchHitAsCard.bind(null, true)));
+                    .attachments(results.map(searchHitAsCard.bind(null, results)));
 
                 session.send(reply);
 
@@ -277,7 +276,6 @@ function create(settings) {
     }
 
     function searchHitAsCard(showSave, searchHit) {
-        console.log("Search Result: " + searchHit);
         var buttons = showSave ? [new builder.CardAction().type('imBack').title('Save').value(searchHit.key)] : [];
         
         var card = new builder.HeroCard().title(searchHit.title).buttons(buttons);
