@@ -276,7 +276,7 @@ function create(settings) {
     }
 
     function searchHitAsCard(showSave, searchHit) {
-        console.log("Search Result: " + searchHit.toString());
+        console.log("Search Result: " + searchHit);
         var buttons = showSave ? [new builder.CardAction().type('imBack').title('Save').value(searchHit.key)] : [];
         
         var card = new builder.HeroCard().title(searchHit.title).buttons(buttons);
