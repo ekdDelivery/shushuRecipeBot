@@ -39,7 +39,6 @@ server.post('/api/messages', connector.listen());
 var bot = new builder.UniversalBot(connector, [
     function(session) {
         session.send("Hi, I am the Shushu Recipe Bot :), \nI can help you find Ghanaian recipes");
-        next();
     },
     function(session,results) {
         session.beginDialog('dishSearch');
