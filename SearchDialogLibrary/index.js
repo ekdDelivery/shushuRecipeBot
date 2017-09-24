@@ -256,6 +256,7 @@ function create(settings) {
     }));
 
     function performSearch(session, query, selection) {
+        session.sendTyping();
         settings.search(query).then((response) => {
             if (response.results.length === 0) {
                 // No Results - Prompt retry
