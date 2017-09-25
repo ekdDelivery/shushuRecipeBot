@@ -70,7 +70,7 @@ function ToSearchHit(azureResponse) {
         // define your own parameters
         key: azureResponse.Id,
         title: azureResponse.Dish,
-        url: azureResponse.Video_Url,
+        video_url: azureResponse.Video_Url,
         source: azureResponse.Source
     };
 }
