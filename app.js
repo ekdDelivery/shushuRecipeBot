@@ -70,8 +70,7 @@ function ToSearchHit(azureResponse) {
         // define your own parameters
         key: azureResponse.Id,
         title: azureResponse.Dish,
-        ingredients: azureResponse.Ingredients,
-        preparation: azureResponse.Preparation,
+        url: azureResponse.Video_Url,
         source: azureResponse.Source
     };
 }
