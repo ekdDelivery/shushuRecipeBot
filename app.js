@@ -46,12 +46,6 @@ var bot = new builder.UniversalBot(connector,
 bot.library(SearchLibrary.create({
     multipleSelectiion: true,
     search: function (query) { return azureSearchClient.search(query).then(ResultsMapper);},
-    refiners: ['Source'],
-    refineFormatter: function (refiners) {
-        return _.zipObject(
-            refiners.map(function (r) { return 'By' + _.capitalize(r);}),
-            refiners);
-    }
 }));
 
 bot.dialog('dishSearch', [
