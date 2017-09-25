@@ -8,7 +8,7 @@ var SearchLibrary = require('./SearchDialogLibrary');
 var AzureSearch = require('./SearchProviders/azure-search');
 
 // Azure Search
-var azureSearchClient = AzureSearch.create('shushu-recipes','EB01DC42455D1FA8FE0414741526E05B','dishrecipes');
+var azureSearchClient = AzureSearch.create('shushu-recipes','EB01DC42455D1FA8FE0414741526E05B','recipevideos');
 var ResultsMapper = SearchLibrary.defaultResultsMapper(ToSearchHit);
 
 
