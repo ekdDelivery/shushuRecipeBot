@@ -5,8 +5,6 @@ var builder = require('botbuilder');
 const defaultSettings = {
     pageSize: 5,
     multipleSelection: true,
-    refiners: [],
-    refineFormatter: (arr) => _.zipObject(arr, arr)
 };
 
 const CancelOption = 'Cancel';
@@ -50,7 +48,7 @@ function create(settings) {
                 });
             }
 
-            var refining = !!args.refining;
+            /*var refining = !!args.refining;
             if (refining) {
                 // D. returning from refine dialog
                 if (args.refiner && args.refiner.key) {
@@ -58,7 +56,7 @@ function create(settings) {
                 }
 
                 return performSearch(session, query, selection);
-            }
+            }*/
 
             var input = args.response;
             var hasInput = typeof input === 'string';
@@ -83,6 +81,8 @@ function create(settings) {
     library.dialog('results',
         new builder.IntentDialog()
             .onBegin((session, args) => {
+
+                session.sendTyping();
                 // Save previous state
                 session.dialogData.selection = args.selection;
                 session.dialogData.searchResponse = args.searchResponse;
@@ -91,15 +91,15 @@ function create(settings) {
                 // Display results
                 var results = args.searchResponse.results;
                 var reply = new builder.Message(session)
-                    .text('Here are a few good options I found:')
+                    .text("Here's what I found: ")
                     .attachmentLayout(builder.AttachmentLayout.carousel)
                     .attachments(results.map(searchHitAsCard.bind(null, true)));
 
                 session.send(reply);
 
                 session.send(settings.multipleSelection ?
-                    'You can select one or more to add to your list, *list* what you\'ve selected so far, *refine* these results, see *more* or search *again*.' :
-                    'You can select one, *refine* these results, see *more* or search *again*.');
+                    'You can select one or more to add to your list, *list* what you\'ve selected so far, see *more* or search *again*.' :
+                    'You can select one, see *more* or search *again*.');
 
             })
             .matches(/again|reset/i, (session) => {
@@ -111,13 +111,6 @@ function create(settings) {
                 session.dialogData.query.pageNumber++;
                 performSearch(session, session.dialogData.query, session.dialogData.selection);
             })
-            .matches(/refine/i, (session) => {
-                // Refine
-                session.beginDialog('refine', {
-                    query: session.dialogData.query,
-                    selection: session.dialogData.selection
-                });
-            })
             .matches(/list/i, (session) => listAddedItems(session))
             .matches(/done/i, (session) => session.endDialogWithResult({ selection: session.dialogData.selection, done: true }))
             .onDefault((session, args) => {
@@ -125,7 +118,7 @@ function create(settings) {
                 var hit = _.find(session.dialogData.searchResponse.results, ['key', selectedKey]);
                 if (!hit) {
                     // Un-recognized selection
-                    return session.send('Not sure what you mean. You can search *again*, *refine*, *list* or select one of the items above. Or are you *done*?');
+                    return session.send('Not sure what you mean. You can search *again*, *list* or select one of the items above. Or are you *done*?');
                 } else {
                     // Add selection
                     var selection = session.dialogData.selection || [];
@@ -147,8 +140,112 @@ function create(settings) {
                 }
             }));
 
-    // Handle refine search
-    library.dialog('refine', [
+    // Helpers
+    library.dialog('confirm-continue', new builder.SimpleDialog((session, args) => {
+        args = args || {};
+        if (args.response === undefined) {
+            session.dialogData.selection = args.selection;
+            session.dialogData.query = args.query;
+            builder.Prompts.confirm(session, args.message || 'Do you want to continue searching and adding more items?');
+        } else {
+            return session.endDialogWithResult({
+                done: !args.response,
+                selection: session.dialogData.selection,
+                query: session.dialogData.query
+            });
+        }
+    }));
+
+    function performSearch(session, query, selection) {
+        settings.search(query).then((response) => {
+            if (response.results.length === 0) {
+                // No Results - Prompt retry
+                query = emptyQuery();
+                session.beginDialog('confirm-continue', {
+                    message: 'Sorry, I didn\'t find any matches. Do you want to retry your search?',
+                    selection: selection,
+                    query: query
+                });
+            } else {
+                // Handle results selection
+                session.beginDialog('results', {
+                    searchResponse: response,
+                    selection: selection,
+                    query: query
+                });
+            }
+        });
+    }
+
+    function searchHitAsCard(showSave, searchHit) {
+        var buttons = showSave ? [new builder.CardAction().type('postBack').title('Save').value(searchHit.key)] : [];
+        var card = new builder.VideoCard().title(searchHit.title).subtitle(`Source: ${searchHit.source}`).media([{url: searchHit.video_url}]).buttons(buttons);
+        
+        return card;
+    }
+
+    function searchPrompt(session) {
+        var prompt = 'What dish do you want the recipe for?';
+        if (session.dialogData.firstTimeDone) {
+            prompt = 'Any other recipe you would like to search for?';
+            if (settings.multipleSelection) {
+                prompt += ' You can also *list* all items you\'ve added so far.';
+            }
+        }
+
+        session.dialogData.firstTimeDone = true;
+        builder.Prompts.text(session, prompt);
+    }
+
+    function listAddedItems(session) {
+        var selection = session.dialogData.selection || [];
+        if (selection.length === 0) {
+            session.send('You have not added anything yet.');
+        } else {
+            var actions = selection.map((hit) => builder.CardAction.imBack(session, hit.title));
+            var message = new builder.Message(session)
+                .text('Here\'s what you\'ve added to your list so far:')
+                .attachments(selection.map(searchHitAsCard.bind(null, false)))
+                .attachmentLayout(builder.AttachmentLayout.list);
+            session.send(message);
+        }
+    }
+
+    function emptyQuery() {
+        return { pageNumber: 1, pageSize: settings.pageSize, filters: [] };
+    }
+
+    return library.clone();
+}
+
+function begin(session, args) {
+    session.beginDialog('search:/', args);
+}
+
+// This helper transforms each of the AzureSearch result items using the mapping function provided (itemMap) 
+function defaultResultsMapper(itemMap) {
+    return function (providerResults) {
+        return {
+            results: providerResults.results.map(itemMap),
+            facets: providerResults.facets
+        };
+    };
+}
+
+// Exports
+module.exports = {
+    create: create,
+    begin: begin,
+    defaultResultsMapper: defaultResultsMapper
+};
+
+/*---------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
+------------------------------ Refine Section -------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------*/
+// Handle refine search
+    /*library.dialog('refine', [
         (session, args, next) => {
             // args: query, selection, refiner(optional), prompt(optional)
             var query = args.query || emptyQuery();
@@ -239,120 +336,20 @@ function create(settings) {
         }
     ]);
 
-    // Helpers
-    library.dialog('confirm-continue', new builder.SimpleDialog((session, args) => {
-        args = args || {};
-        if (args.response === undefined) {
-            session.dialogData.selection = args.selection;
-            session.dialogData.query = args.query;
-            builder.Prompts.confirm(session, args.message || 'Do you want to continue searching and adding more items?');
-        } else {
-            return session.endDialogWithResult({
-                done: !args.response,
-                selection: session.dialogData.selection,
-                query: session.dialogData.query
-            });
-        }
-    }));
-
-    function performSearch(session, query, selection) {
-        session.sendTyping();
-        settings.search(query).then((response) => {
-            if (response.results.length === 0) {
-                // No Results - Prompt retry
-                session.beginDialog('confirm-continue', {
-                    message: 'Sorry, I didn\'t find any matches. Do you want to retry your search?',
-                    selection: selection,
-                    query: query
-                });
-            } else {
-                // Handle results selection
-                session.beginDialog('results', {
-                    searchResponse: response,
-                    selection: selection,
-                    query: query
-                });
-            }
-        });
-    }
-
-    function searchHitAsCard(showSave, searchHit) {
-        var buttons = showSave ? [new builder.CardAction().type('imBack').title('Save').value(searchHit.key)] : [];
-        var card = new builder.VideoCard().title(searchHit.title).subtitle(`Source: ${searchHit.source}`).media([{url: searchHit.video_url}]).buttons(buttons);
-        
-        return card;
-    }
-
-    function applyRefiner(query, refiner, refinerValue) {
-        query.filters.push({ key: refiner, value: refinerValue });
-        query.pageNumber = 1;
-        return query;
-    }
-
-    function formatRefinerOption(facet) {
-        return util.format('%s (%d)', facet.value, facet.count);
-    }
-
-    function parseRefinerValue(s) {
-        return s.split('(')[0].trim();
-    }
-
-    function searchPrompt(session) {
-        var prompt = 'What dish do you want the recipe for?';
-        if (session.dialogData.firstTimeDone) {
-            prompt = 'Any other recipe you would like to search for?';
-            if (settings.multipleSelection) {
-                prompt += ' You can also *list* all items you\'ve added so far.';
-            }
-        }
-
-        session.dialogData.firstTimeDone = true;
-        builder.Prompts.text(session, prompt);
-    }
-
-    function listAddedItems(session) {
-        var selection = session.dialogData.selection || [];
-        if (selection.length === 0) {
-            session.send('You have not added anything yet.');
-        } else {
-            var actions = selection.map((hit) => builder.CardAction.imBack(session, hit.title));
-            var message = new builder.Message(session)
-                .text('Here\'s what you\'ve added to your list so far:')
-                .attachments(selection.map(searchHitAsCard.bind(null, false)))
-                .attachmentLayout(builder.AttachmentLayout.list);
-            session.send(message);
-        }
-    }
-
-    function emptyQuery() {
-        return { pageNumber: 1, pageSize: settings.pageSize, filters: [] };
-    }
-
-    return library.clone();
-}
-
-function begin(session, args) {
-    session.beginDialog('search:/', args);
-}
-
 function refine(session, args) {
     session.beginDialog('search:refine', args);
 }
 
-// This helper transforms each of the AzureSearch result items using the mapping function provided (itemMap) 
-function defaultResultsMapper(itemMap) {
-    return function (providerResults) {
-        return {
-            results: providerResults.results.map(itemMap),
-            facets: providerResults.facets
-        };
-    };
+function applyRefiner(query, refiner, refinerValue) {
+    query.filters.push({ key: refiner, value: refinerValue });
+    query.pageNumber = 1;
+    return query;
 }
 
-// Exports
-module.exports = {
-    create: create,
-    begin: begin,
-    refine: refine,
-    defaultResultsMapper: defaultResultsMapper
-};
+function formatRefinerOption(facet) {
+    return util.format('%s (%d)', facet.value, facet.count);
+}
+
+function parseRefinerValue(s) {
+    return s.split('(')[0].trim();
+} */
