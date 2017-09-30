@@ -81,8 +81,6 @@ function create(settings) {
     library.dialog('results',
         new builder.IntentDialog()
             .onBegin((session, args) => {
-
-                session.sendTyping();
                 // Save previous state
                 session.dialogData.selection = args.selection;
                 session.dialogData.searchResponse = args.searchResponse;
@@ -157,6 +155,7 @@ function create(settings) {
     }));
 
     function performSearch(session, query, selection) {
+        session.sendTyping();
         settings.search(query).then((response) => {
             if (response.results.length === 0) {
                 // No Results - Prompt retry
