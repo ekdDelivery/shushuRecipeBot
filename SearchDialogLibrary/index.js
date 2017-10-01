@@ -178,7 +178,11 @@ function create(settings) {
 
     function searchHitAsCard(showSave, searchHit) {
         var buttons = showSave ? [new builder.CardAction().type('postBack').title('Save').value(searchHit.key)] : [];
-        var card = new builder.VideoCard().title(searchHit.title).subtitle(`Source: ${searchHit.source}`).media([{url: searchHit.video_url}]).buttons(buttons);
+        var card = new builder.VideoCard()
+        .title(searchHit.title)
+        .subtitle(`Source: ${searchHit.source}`)
+        .media([builder.CardMedia.create(searchHit.video_url)])
+        .buttons(buttons);
         
         return card;
     }
