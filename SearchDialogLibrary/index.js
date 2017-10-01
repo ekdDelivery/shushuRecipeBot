@@ -181,7 +181,7 @@ function create(settings) {
         var card = new builder.VideoCard()
         .title(searchHit.title)
         .subtitle(`Source: ${searchHit.source}`)
-        .media([builder.CardMedia.create(searchHit.video_url)])
+        .media([{url: searchHit.video_url}])
         .buttons(buttons);
         
         return card;
