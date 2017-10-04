@@ -184,12 +184,33 @@ function create(settings) {
         .media([{url: searchHit.video_url}])
         .buttons(buttons);
         
-        var customMessage = new builder.Message()
-        .text("<code><iframe width='560' height='315' src='https://www.youtube.com/embed/zkh4LBhbiLs?rel=0' frameborder='0' allowfullscreen></iframe><code>")
-        .textFormat("xml")
-        .textLocale("en-us");
+        var adaptiveCardPayload = {
+            contentType: "application/vnd.microsoft.card.adaptive",
+            content: {
+                type: "AdaptiveCard",
+                   body: [
+                        {
+                            "type": "TextBlock",
+                            "text": searchHit.title,
+                            "size": "large",
+                            "weight": "bolder"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": searchHit.source
+                        },
+                    ],
+                    "actions": [
+                        {
+                            "type": "Action.OpenUrl",
+                            "url": searchHit.video_url,
+                            "title": "Play Video"
+                        }
+                    ]
+            }
+        };
 
-        return customMessage;
+        return adaptiveCardPayload;
     }
 
     function searchPrompt(session) {
