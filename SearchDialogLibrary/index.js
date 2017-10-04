@@ -96,8 +96,8 @@ function create(settings) {
                 session.send(reply);
 
                 session.send(settings.multipleSelection ?
-                    'You can select one or more to add to your list, *list* what you\'ve selected so far, see *more* or search *again*.' :
-                    'You can select one, see *more* or search *again*.');
+                    'You can select one or more to add to your list, *[list]* what you\'ve selected so far, see *[more]* or search *[again]*.' :
+                    'You can select one, see *[more]* or search *[again]*.');
 
             })
             .matches(/again|reset/i, (session) => {
@@ -116,7 +116,7 @@ function create(settings) {
                 var hit = _.find(session.dialogData.searchResponse.results, ['key', selectedKey]);
                 if (!hit) {
                     // Un-recognized selection
-                    return session.send('Not sure what you mean. You can search *again*, *list* or select one of the items above. Or are you *done*?');
+                    return session.send('Not sure what you mean. You can search *[again]*, *[list]* or select one of the items above. Or are you *[done]*?');
                 } else {
                     // Add selection
                     var selection = session.dialogData.selection || [];
@@ -182,32 +182,6 @@ function create(settings) {
         .title(searchHit.title)
         .subtitle(`Source: ${searchHit.source}`)
         .buttons(buttons);
-        
-        var adaptiveCardPayload = {
-            contentType: "application/vnd.microsoft.card.adaptive",
-            content: {
-                type: "AdaptiveCard",
-                   body: [
-                        {
-                            "type": "TextBlock",
-                            "text": searchHit.title,
-                            "size": "large",
-                            "weight": "bolder"
-                        },
-                        {
-                            "type": "TextBlock",
-                            "text": searchHit.source
-                        },
-                    ],
-                    "actions": [
-                        {
-                            "type": "Action.OpenUrl",
-                            "url": searchHit.video_url,
-                            "title": "Play Video"
-                        }
-                    ]
-            }
-        };
 
         return card;
     }
@@ -217,7 +191,7 @@ function create(settings) {
         if (session.dialogData.firstTimeDone) {
             prompt = 'Any other recipe you would like to search for?';
             if (settings.multipleSelection) {
-                prompt += ' You can also *list* all items you\'ve added so far.';
+                prompt += ' You can also *[list]* all items you\'ve added so far.';
             }
         }
 
