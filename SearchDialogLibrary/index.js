@@ -177,11 +177,10 @@ function create(settings) {
     }
 
     function searchHitAsCard(showSave, searchHit) {
-        var buttons = showSave ? [new builder.CardAction().type('postBack').title('Save').value(searchHit.key)] : [];
-        var card = new builder.VideoCard()
+        var buttons = showSave ? [new builder.CardAction().type('openUrl').title('Play Video').value(searchHit.video_url),new builder.CardAction().type('postBack').title('Save').value(searchHit.key)] : [];
+        var card = new builder.HeroCard()
         .title(searchHit.title)
         .subtitle(`Source: ${searchHit.source}`)
-        .media([{url: searchHit.video_url}])
         .buttons(buttons);
         
         var adaptiveCardPayload = {
@@ -210,7 +209,7 @@ function create(settings) {
             }
         };
 
-        return adaptiveCardPayload;
+        return card;
     }
 
     function searchPrompt(session) {
