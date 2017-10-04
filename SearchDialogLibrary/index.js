@@ -184,7 +184,12 @@ function create(settings) {
         .media([{url: searchHit.video_url}])
         .buttons(buttons);
         
-        return card;
+        var customMessage = new builder.Message()
+        .text("<code><iframe width='560' height='315' src='https://www.youtube.com/embed/zkh4LBhbiLs?rel=0' frameborder='0' allowfullscreen></iframe><code>")
+        .textFormat("xml")
+        .textLocale("en-us");
+
+        return customMessage;
     }
 
     function searchPrompt(session) {
