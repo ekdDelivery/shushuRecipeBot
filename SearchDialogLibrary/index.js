@@ -103,6 +103,7 @@ function create(settings) {
             .matches(/more/i, (session) => {
                 // Next Page
                 session.dialogData.query.pageNumber++;
+                session.dialogData.more = true;
                 performSearch(session, session.dialogData.query, session.dialogData.selection);
             })
             .matches(/done/i, (session) => session.endDialogWithResult({ selection: session.dialogData.selection, done: true }))
@@ -136,9 +137,12 @@ function create(settings) {
         settings.search(query).then((response) => {
             if (response.results.length === 0) {
                 // No Results - Prompt retry
+                var message = session.dialogData.more ? 'Sorry, no more results to display. Do you want to retry your search?' :
+                'Sorry, I didn\'t find any matches. Do you want to retry your search?';
+                session.dialogData.more = false;
                 query = emptyQuery();
                 session.beginDialog('confirm-continue', {
-                    message: 'Sorry, I didn\'t find any matches. Do you want to retry your search?',
+                    message: message,
                     selection: selection,
                     query: query
                 });
