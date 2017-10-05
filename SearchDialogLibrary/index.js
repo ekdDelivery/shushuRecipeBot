@@ -94,11 +94,7 @@ function create(settings) {
                     .attachments(results.map(searchHitAsCard.bind(null, true)));
 
                 session.send(reply);
-
-                session.send(settings.multipleSelection ?
-                    'You can select one or more to add to your list, *[list]* what you\'ve selected so far, see *[more]* or search *[again]*.' :
-                    'You can select one, see *[more]* or search *[again]*.');
-
+                session.send('You can see *[more]* or search *[again]*.');
             })
             .matches(/again|reset/i, (session) => {
                 // Restart
@@ -109,32 +105,13 @@ function create(settings) {
                 session.dialogData.query.pageNumber++;
                 performSearch(session, session.dialogData.query, session.dialogData.selection);
             })
-            .matches(/list/i, (session) => listAddedItems(session))
             .matches(/done/i, (session) => session.endDialogWithResult({ selection: session.dialogData.selection, done: true }))
             .onDefault((session, args) => {
                 var selectedKey = session.message.text;
                 var hit = _.find(session.dialogData.searchResponse.results, ['key', selectedKey]);
                 if (!hit) {
                     // Un-recognized selection
-                    return session.send('Not sure what you mean. You can search *[again]*, *[list]* or select one of the items above. Or are you *[done]*?');
-                } else {
-                    // Add selection
-                    var selection = session.dialogData.selection || [];
-                    if (!_.find(selection, ['key', hit.key])) {
-                        selection.push(hit);
-                        session.dialogData.selection = selection;
-                        session.save();
-                    }
-
-                    var query = session.dialogData.query;
-                    if (settings.multipleSelection) {
-                        // Multi-select -> Continue?
-                        session.send('%s was added to your list!', hit.title);
-                        session.beginDialog('confirm-continue', { selection: selection, query: query });
-                    } else {
-                        // Single-select -> done!
-                        session.endDialogWithResult({ selection: selection, query: query });
-                    }
+                    return session.send('Not sure what you mean. You can search *[again]*. Or are you *[done]*?');
                 }
             }));
 
@@ -144,7 +121,7 @@ function create(settings) {
         if (args.response === undefined) {
             session.dialogData.selection = args.selection;
             session.dialogData.query = args.query;
-            builder.Prompts.confirm(session, args.message || 'Do you want to continue searching and adding more items?');
+            builder.Prompts.confirm(session, args.message || 'Do you want to continue searching?');
         } else {
             return session.endDialogWithResult({
                 done: !args.response,
@@ -177,7 +154,7 @@ function create(settings) {
     }
 
     function searchHitAsCard(showSave, searchHit) {
-        var buttons = showSave ? [new builder.CardAction().type('openUrl').title('Play Video').value(searchHit.video_url),new builder.CardAction().type('postBack').title('Save').value(searchHit.key)] : [];
+        var buttons = [new builder.CardAction().type('openUrl').title('Play Video').value(searchHit.video_url)];
         var card = new builder.HeroCard()
         .title(searchHit.title)
         .subtitle(`Source: ${searchHit.source}`)
@@ -189,28 +166,11 @@ function create(settings) {
     function searchPrompt(session) {
         var prompt = 'What dish do you want the recipe for?';
         if (session.dialogData.firstTimeDone) {
-            prompt = 'Any other recipe you would like to search for?';
-            if (settings.multipleSelection) {
-                prompt += ' You can also *[list]* all items you\'ve added so far.';
-            }
+            prompt = 'What other recipe you would like to search for?';
         }
 
         session.dialogData.firstTimeDone = true;
         builder.Prompts.text(session, prompt);
-    }
-
-    function listAddedItems(session) {
-        var selection = session.dialogData.selection || [];
-        if (selection.length === 0) {
-            session.send('You have not added anything yet.');
-        } else {
-            var actions = selection.map((hit) => builder.CardAction.imBack(session, hit.title));
-            var message = new builder.Message(session)
-                .text('Here\'s what you\'ve added to your list so far:')
-                .attachments(selection.map(searchHitAsCard.bind(null, false)))
-                .attachmentLayout(builder.AttachmentLayout.list);
-            session.send(message);
-        }
     }
 
     function emptyQuery() {
@@ -354,4 +314,23 @@ function formatRefinerOption(facet) {
 
 function parseRefinerValue(s) {
     return s.split('(')[0].trim();
+}
+
+-----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
+------------------------------ List Section ---------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
+function listAddedItems(session) {
+    var selection = session.dialogData.selection || [];
+    if (selection.length === 0) {
+        session.send('You have not added anything yet.');
+    } else {
+        var actions = selection.map((hit) => builder.CardAction.imBack(session, hit.title));
+        var message = new builder.Message(session)
+            .text('Here\'s what you\'ve added to your list so far:')
+            .attachments(selection.map(searchHitAsCard.bind(null, false)))
+            .attachmentLayout(builder.AttachmentLayout.list);
+        session.send(message);
+    }
 } */
