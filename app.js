@@ -4,6 +4,7 @@ A simple echo bot for the Microsoft Bot Framework.
 
 var restify = require('restify');
 var builder = require('botbuilder');
+var emoji = require('node-emoji');
 var SearchLibrary = require('./SearchDialogLibrary');
 var AzureSearch = require('./SearchProviders/azure-search');
 
@@ -38,7 +39,7 @@ server.post('/api/messages', connector.listen());
 // Create your bot with a function to receive messages from the user
 var bot = new builder.UniversalBot(connector,
     function(session) {
-        session.send("Hi, I am the Shushu Recipe Bot :), \nI can help you find Ghanaian recipes");
+        session.send(`Hi I am the Shushu Recipe Bot ${emoji.get('smile')}, \n\nI can help you find Ghanaian recipes`);
         session.beginDialog('dishSearch');
     }
 );
@@ -55,7 +56,7 @@ bot.dialog('dishSearch', [
     },
     function (session, args) {
         // Process selected search results
-        session.send('Search Completed!',args.selection.map(function (i) { return i.key; }).join(', ')); //format your response
+        session.send(`Goodbye ${emoji.get('wave') + emoji.get('wave')}, \n\nJust say hi to start again ${emoji.get('smile')}`,args.selection.map(function (i) { return i.key; }).join(', ')); //format your response
     }
 ]);
 

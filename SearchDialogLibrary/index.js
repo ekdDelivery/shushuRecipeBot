@@ -1,6 +1,7 @@
 var util = require('util');
 var _ = require('lodash');
 var builder = require('botbuilder');
+var emoji = require('node-emoji');
 
 const defaultSettings = {
     pageSize: 5,
@@ -89,12 +90,12 @@ function create(settings) {
                 // Display results
                 var results = args.searchResponse.results;
                 var reply = new builder.Message(session)
-                    .text("Here's what I found: ")
+                    .text(`Here's what I found ${emoji.get('yum')}: `)
                     .attachmentLayout(builder.AttachmentLayout.carousel)
                     .attachments(results.map(searchHitAsCard.bind(null, true)));
 
                 session.send(reply);
-                session.send('You can see *[more]* or search *[again]*.');
+                session.send('You can type *[more]* to view more results or type *[again]* to search again.');
             })
             .matches(/again|reset/i, (session) => {
                 // Restart
@@ -137,8 +138,8 @@ function create(settings) {
         settings.search(query).then((response) => {
             if (response.results.length === 0) {
                 // No Results - Prompt retry
-                var message = session.dialogData.more ? 'Sorry, no more results to display. Do you want to retry your search?' :
-                'Sorry, I didn\'t find any matches. Do you want to retry your search?';
+                var message = session.dialogData.more ? `Sorry ${emoji.get('disappointed')}, no more results to display. Do you want to retry your search?` :
+                `Sorry ${emoji.get('disappointed')}, I didn\'t find any matches. Do you want to retry your search?`;
                 session.dialogData.more = false;
                 query = emptyQuery();
                 session.beginDialog('confirm-continue', {
@@ -168,9 +169,9 @@ function create(settings) {
     }
 
     function searchPrompt(session) {
-        var prompt = 'What dish do you want the recipe for?';
+        var prompt = `What dish do you want the recipe for? ${emoji.get('information_desk_person')}`;
         if (session.dialogData.firstTimeDone) {
-            prompt = 'What other recipe you would like to search for?';
+            prompt = `What other recipe you would like to search for? ${emoji.get('information_desk_person')}`;
         }
 
         session.dialogData.firstTimeDone = true;
