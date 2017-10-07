@@ -39,7 +39,7 @@ server.post('/api/messages', connector.listen());
 // Create your bot with a function to receive messages from the user
 var bot = new builder.UniversalBot(connector,
     function(session) {
-        session.send(`Hi I am the Shushu Recipe Bot ${emoji.get('smile')}, \n\nI can help you find Ghanaian recipes`);
+        session.send(`Hi I am Shushu ${emoji.get('smile')}, \n\nI can help you find Ghanaian recipes`);
         session.beginDialog('dishSearch');
     }
 );

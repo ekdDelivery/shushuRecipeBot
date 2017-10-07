@@ -41,6 +41,7 @@ function create(settings) {
             session.dialogData.query = query;
 
             var done = args.done;
+            console.log("Done: " + args.response);
             if (done) {
                 // A/B/C returning from search results or cancelling
                 return session.endDialogWithResult({
@@ -49,29 +50,12 @@ function create(settings) {
                 });
             }
 
-            /*var refining = !!args.refining;
-            if (refining) {
-                // D. returning from refine dialog
-                if (args.refiner && args.refiner.key) {
-                    session.send('Filtering by %s: %s', args.refiner.key, args.refiner.value);
-                }
-
-                return performSearch(session, query, selection);
-            }*/
-
             var input = args.response;
             var hasInput = typeof input === 'string';
             if (hasInput) {
-                // Process input
-                if (settings.multipleSelection && input.trim().toLowerCase() === 'list') {
-                    // E. List items
-                    listAddedItems(session);
-                    searchPrompt(session);
-                } else {
-                    // F. Perform search
-                    var newQuery = Object.assign({}, query, { searchText: input });
-                    performSearch(session, newQuery, selection);
-                }
+                // F. Perform search
+                var newQuery = Object.assign({}, query, { searchText: input });
+                performSearch(session, newQuery, selection);
             } else {
                 // G. Prompt
                 searchPrompt(session);
@@ -95,11 +79,11 @@ function create(settings) {
                     .attachments(results.map(searchHitAsCard.bind(null, true)));
 
                 session.send(reply);
-                session.send('You can type *[more]* to view more results or type *[again]* to search again.');
+                session.send('You can type \'more\' to view more results or type \'again\' to search again. \n\nOr you can type \'done\' if you are done.');
             })
             .matches(/again|reset/i, (session) => {
                 // Restart
-                session.replaceDialog('/');
+                session.cancelDialog(0, 'dishSearch');
             })
             .matches(/more/i, (session) => {
                 // Next Page
@@ -113,7 +97,7 @@ function create(settings) {
                 var hit = _.find(session.dialogData.searchResponse.results, ['key', selectedKey]);
                 if (!hit) {
                     // Un-recognized selection
-                    return session.send('Not sure what you mean. You can search *[again]*. Or are you *[done]*?');
+                    return session.send('Not sure what you mean. You can type \'again\' to search again. Or you can type \'done\' if you are done.');
                 }
             }));
 
